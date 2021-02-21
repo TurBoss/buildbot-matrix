@@ -15,10 +15,11 @@ from buildbot.process.results import SUCCESS
 from buildbot.process.results import WARNINGS
 from buildbot.reporters import http
 from buildbot.util import httpclientservice
+from buildbot.reporters.base import ReporterBase
 
 import re
 
-class MatrixStatusPush(http.HttpStatusPushBase):
+class MatrixStatusPush(ReporterBase):
     name = "MatrixStatusPush"
     neededDetails = dict(wantProperties=True)
     ssh_url_match = re.compile(r"(ssh://)?[\w+\.\-\_]+:?(\d*/)?(?P<owner>[\w_\-\.]+)/(?P<repo_name>[\w_\-\.]+)(\.git)?")
