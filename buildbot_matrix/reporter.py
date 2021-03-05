@@ -13,6 +13,7 @@ from buildbot.process.results import RETRY
 from buildbot.process.results import SKIPPED
 from buildbot.process.results import SUCCESS
 from buildbot.process.results import WARNINGS
+from buildbot.process.results import statusToString
 from buildbot.reporters.base import ReporterBase
 from buildbot.reporters.generators.build import BuildStatusGenerator
 from buildbot.reporters.generators.worker import WorkerMissingGenerator
@@ -161,13 +162,15 @@ class MatrixStatusPush(ReporterBase):
         
         
         for report in reports:
-            if report['type'] != 'matrix':
+            if report['type'] != 'plain':
                 log.msg("MatrixStatusPush: got report of unexpected type {}".format(report['type']))
                 continue
                 
             report['results_text'] = statusToString(report['results'])
             log.msg(report['results_text'])
             
+    
+    def unknown(self):
         
         
         props = Properties.fromDict(reports['body']['properties'])
