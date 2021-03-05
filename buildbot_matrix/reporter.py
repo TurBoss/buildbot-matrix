@@ -193,18 +193,17 @@ class MatrixStatusPush(ReporterBase):
             for build in builds:
                 props = Properties.fromDict(build['properties'])
                 props.master = self.master
-        
-                log.msg('1 OK')
+
         
                 if build['complete']:
                     state = {
-                            SUCCESS: 'success',
-                            WARNINGS: 'success' if self.warningAsSuccess else 'warning',
-                            FAILURE: 'failure',
-                            SKIPPED: 'success',
-                            EXCEPTION: 'error',
-                            RETRY: 'pending',
-                            CANCELLED: 'error'
+                            success: 'success',
+                            warnings: 'success' if self.warningAsSuccess else 'warning',
+                            failure: 'failure',
+                            skipped: 'success',
+                            exception: 'error',
+                            retry: 'pending',
+                            cancelled: 'error'
                         }.get(build['buildset']['results'], 'failure')
                     description = yield props.render(self.endDescription)
                 else:
@@ -216,8 +215,6 @@ class MatrixStatusPush(ReporterBase):
                 else:
                     context = yield props.render(self.context)
         
-        
-                log.msg('2 OK')
                 sourcestamps = build['buildset']['sourcestamps']
                 for sourcestamp in sourcestamps:
                     sha = sourcestamp['revision']
