@@ -42,11 +42,6 @@ class MatrixStatusPush(ReporterBase):
             verify=None,
             **kwargs
         ):
-
-        generators = [
-            BuildStatusGenerator(add_patch=True),
-            WorkerMissingGenerator(workers='all'),
-        ]
         
         super().checkConfig(generators=generators)
 
@@ -71,13 +66,6 @@ class MatrixStatusPush(ReporterBase):
             **kwargs
             ):
         self.access_token = yield self.renderSecrets(access_token)
-        
-        
-        if generators is None:
-            generators = [
-                BuildStatusGenerator(add_patch=True),
-                WorkerMissingGenerator(workers='all'),
-            ]
         
         yield super().reconfigService(generators=generators)
 
