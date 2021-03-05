@@ -14,6 +14,7 @@ from buildbot.process.results import SKIPPED
 from buildbot.process.results import SUCCESS
 from buildbot.process.results import WARNINGS
 from buildbot.reporters.base import ReporterBase
+from buildbot.reporters.generators.build import BuildStatusGenerator
 from buildbot.reporters import http
 from buildbot.util import httpclientservice
 
@@ -23,6 +24,27 @@ class MatrixStatusPush(ReporterBase):
     name = "MatrixStatusPush"
     neededDetails = dict(wantProperties=True)
     ssh_url_match = re.compile(r"(ssh://)?[\w+\.\-\_]+:?(\d*/)?(?P<owner>[\w_\-\.]+)/(?P<repo_name>[\w_\-\.]+)(\.git)?")
+
+    def checkConfig(
+            self,
+            homeserverURL,
+            room_id,
+            access_token,
+            startDescription=None,
+            endDescription=None,
+            context=None,
+            context_pr=None,
+            verbose=False,
+            warningAsSuccess=False,
+            onlyEndState=False,
+            **kwargs
+            ):
+        if generators is None:
+            generators = BuildStatusGenerator()
+        
+        super().checkConfig(generators=generators)
+
+
 
     @defer.inlineCallbacks
     def reconfigService(
@@ -40,7 +62,12 @@ class MatrixStatusPush(ReporterBase):
             **kwargs
             ):
         self.access_token = yield self.renderSecrets(access_token)
-        yield ReporterBase.reconfigService(self, **kwargs)
+        
+        
+        if generators is None:
+            generators = BuildStatusGenerator()
+        
+        yield super().reconfigService(generators=generators)
 
         self.context = context or Interpolate('buildbot/%(prop:buildername)s')
         self.context_pr = context_pr or Interpolate('buildbot/pull_request/%(prop:buildername)s')
@@ -122,7 +149,7 @@ class MatrixStatusPush(ReporterBase):
                 json=payload)
 
     @defer.inlineCallbacks
-    def send(self, build):
+    def sendMessage(self, build):
         props = Properties.fromDict(build['properties'])
         props.master = self.master
 
