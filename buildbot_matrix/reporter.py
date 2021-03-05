@@ -58,8 +58,9 @@ class MatrixStatusPush(ReporterBase):
         ):
         log.msg('CHECKCONFIG')
         
-        if generators is None:
-            generators = [BuildSetStatusGenerator()]
+        # if generators is None:
+            # generators = [BuildSetStatusGenerator()]
+            
         super().checkConfig(generators=generators, **kwargs)
 
 
@@ -85,8 +86,8 @@ class MatrixStatusPush(ReporterBase):
         
         log.msg('RECONFIG SERVER')
         
-        if generators is None:
-            generators = [BuildSetStatusGenerator()]
+        # if generators is None:
+            # generators = [BuildSetStatusGenerator()]
         
         self.access_token = yield self.renderSecrets(access_token)
         
