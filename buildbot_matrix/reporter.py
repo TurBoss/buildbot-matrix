@@ -90,8 +90,8 @@ class MatrixStatusPush(ReporterBase):
         self._http = yield httpclientservice.HTTPClientService.getService(
                 self.master,
                 homeserverURL,
-                debug=self.debug,
-                verify=self.verify
+                debug=debug,
+                verify=verify
             )
 
     def createStatus(
