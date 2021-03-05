@@ -158,9 +158,19 @@ class MatrixStatusPush(ReporterBase):
         log.msg('SEND MESSAGE')
         
         log.msg(reports)
-        log.msg(dir(reports))
         
-        props = Properties.fromDict(build['properties'])
+        
+        for report in reports:
+            if report['type'] != 'matrix':
+                log.msg("MatrixStatusPush: got report of unexpected type {}".format(report['type']))
+                continue
+                
+            report['results_text'] = statusToString(report['results'])
+            log.msg(report['results_text'])
+            
+        
+        
+        props = Properties.fromDict(reports['body']['properties'])
         props.master = self.master
 
         if build['complete']:
