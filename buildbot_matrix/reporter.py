@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import re
+from pprint import pprint
 
 from twisted.internet import defer
 from twisted.python import log
@@ -175,7 +176,7 @@ class MatrixStatusPush(ReporterBase):
     def sendMessage(self, reports):
         log.msg('SEND MESSAGE')
         
-        log.msg(reports)
+        pprint(reports)
         
         
         for report in reports:
@@ -185,77 +186,74 @@ class MatrixStatusPush(ReporterBase):
                 
             report['results_text'] = statusToString(report['results'])
             log.msg(report['results_text'])
-            
+
+        
+            props = Properties.fromDict(report['body']['properties'])
+            props.master = self.master
     
-    def unknown(self):
-        
-        
-        props = Properties.fromDict(reports['body']['properties'])
-        props.master = self.master
-
-        if build['complete']:
-            state = {
-                    SUCCESS: 'success',
-                    WARNINGS: 'success' if self.warningAsSuccess else 'warning',
-                    FAILURE: 'failure',
-                    SKIPPED: 'success',
-                    EXCEPTION: 'error',
-                    RETRY: 'pending',
-                    CANCELLED: 'error'
-                }.get(build['results'], 'failure')
-            description = yield props.render(self.endDescription)
-        else:
-            state = 'pending'
-            description = yield props.render(self.startDescription)
-
-        if 'pr_id' in props:
-            context = yield props.render(self.context_pr)
-        else:
-            context = yield props.render(self.context)
-
-        sourcestamps = build['buildset']['sourcestamps']
-        for sourcestamp in sourcestamps:
-            sha = sourcestamp['revision']
-            if sha is None:
-                continue
-            if 'repository_name' in props:
-                repository_name = props['repository_name']
+            if build['complete']:
+                state = {
+                        SUCCESS: 'success',
+                        WARNINGS: 'success' if self.warningAsSuccess else 'warning',
+                        FAILURE: 'failure',
+                        SKIPPED: 'success',
+                        EXCEPTION: 'error',
+                        RETRY: 'pending',
+                        CANCELLED: 'error'
+                    }.get(build['results'], 'failure')
+                description = yield props.render(self.endDescription)
             else:
-                match = re.match(self.ssh_url_match, sourcestamp['repository'])
-                if match is not None:
-                    repository_name = match.group("repo_name")
+                state = 'pending'
+                description = yield props.render(self.startDescription)
+    
+            if 'pr_id' in props:
+                context = yield props.render(self.context_pr)
+            else:
+                context = yield props.render(self.context)
+    
+            sourcestamps = build['buildset']['sourcestamps']
+            for sourcestamp in sourcestamps:
+                sha = sourcestamp['revision']
+                if sha is None:
+                    continue
+                if 'repository_name' in props:
+                    repository_name = props['repository_name']
                 else:
-                    repository_name = None
-
-            if 'owner' in props:
-                repository_owner = props['owner']
-            else:
-                match = re.match(self.ssh_url_match, sourcestamp['repository'])
-                if match is not None:
-                    repository_owner = match.group("owner")
+                    match = re.match(self.ssh_url_match, sourcestamp['repository'])
+                    if match is not None:
+                        repository_name = match.group("repo_name")
+                    else:
+                        repository_name = None
+    
+                if 'owner' in props:
+                    repository_owner = props['owner']
                 else:
-                    repository_owner = None
-
-            if (state == 'pending') and (self.onlyEndState):
-                log.msg('Pending message not set to matrix, as configured')
-                return
-            else:
-                try:
-                    target_url = build['url']
-                    result = yield self.createStatus(
-                            project_owner=repository_owner,
-                            repo_name=repository_name,
-                            sha=sha,
-                            state=state,
-                            target_url=target_url,
-                            context=context,
-                            description=description
-                        )
-                    if result.code not in (200, 201, 204):
-                        message = yield result.json()
-                        message = message.get('message', 'unspecified error')
-                        log.msg('Code: {code} - Could not send Notification: {message}'.format(code=result.code, message=message))
-                    elif self.verbose:
-                        log.msg('Notification send to {room}'.format(room=self.room_id))
-                except Exception as e:
-                    log.err(e, 'Failed to send notification to {room}'.format(room=self.room_id))
+                    match = re.match(self.ssh_url_match, sourcestamp['repository'])
+                    if match is not None:
+                        repository_owner = match.group("owner")
+                    else:
+                        repository_owner = None
+    
+                if (state == 'pending') and (self.onlyEndState):
+                    log.msg('Pending message not set to matrix, as configured')
+                    return
+                else:
+                    try:
+                        target_url = build['url']
+                        result = yield self.createStatus(
+                                project_owner=repository_owner,
+                                repo_name=repository_name,
+                                sha=sha,
+                                state=state,
+                                target_url=target_url,
+                                context=context,
+                                description=description
+                            )
+                        if result.code not in (200, 201, 204):
+                            message = yield result.json()
+                            message = message.get('message', 'unspecified error')
+                            log.msg('Code: {code} - Could not send Notification: {message}'.format(code=result.code, message=message))
+                        elif self.verbose:
+                            log.msg('Notification send to {room}'.format(room=self.room_id))
+                    except Exception as e:
+                        log.err(e, 'Failed to send notification to {room}'.format(room=self.room_id))
