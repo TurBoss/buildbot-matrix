@@ -191,7 +191,7 @@ class MatrixStatusPush(ReporterBase):
             props = Properties.fromDict(report['body']['properties'])
             props.master = self.master
     
-            if build['complete']:
+            if report['builds']['complete']:
                 state = {
                         SUCCESS: 'success',
                         WARNINGS: 'success' if self.warningAsSuccess else 'warning',
@@ -200,7 +200,7 @@ class MatrixStatusPush(ReporterBase):
                         EXCEPTION: 'error',
                         RETRY: 'pending',
                         CANCELLED: 'error'
-                    }.get(build['results'], 'failure')
+                    }.get(reports['builds']['buildset']['results'], 'failure')
                 description = yield props.render(self.endDescription)
             else:
                 state = 'pending'
@@ -211,7 +211,7 @@ class MatrixStatusPush(ReporterBase):
             else:
                 context = yield props.render(self.context)
     
-            sourcestamps = build['buildset']['sourcestamps']
+            sourcestamps = reports['builds']['buildset']['sourcestamps']
             for sourcestamp in sourcestamps:
                 sha = sourcestamp['revision']
                 if sha is None:
@@ -239,7 +239,7 @@ class MatrixStatusPush(ReporterBase):
                     return
                 else:
                     try:
-                        target_url = build['url']
+                        target_url = reports['builds']['url']
                         result = yield self.createStatus(
                                 project_owner=repository_owner,
                                 repo_name=repository_name,
