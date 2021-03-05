@@ -192,6 +192,8 @@ class MatrixStatusPush(ReporterBase):
             props = Properties.fromDict(report['builds']['properties'])
             props.master = self.master
     
+            log.msg('1 OK')
+    
             if report['builds']['complete']:
                 state = {
                         SUCCESS: 'success',
@@ -212,6 +214,8 @@ class MatrixStatusPush(ReporterBase):
             else:
                 context = yield props.render(self.context)
     
+    
+            log.msg('2 OK')
             sourcestamps = reports['builds']['buildset']['sourcestamps']
             for sourcestamp in sourcestamps:
                 sha = sourcestamp['revision']
