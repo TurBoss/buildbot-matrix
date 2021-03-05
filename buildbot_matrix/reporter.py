@@ -1,3 +1,5 @@
+import re
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -15,9 +17,18 @@ from buildbot.process.results import SUCCESS
 from buildbot.process.results import WARNINGS
 from buildbot.process.results import statusToString
 from buildbot.reporters.base import ReporterBase
+from buildbot.reporters.generators.buildset import BuildSetStatusGenerator
 from buildbot.reporters.generators.build import BuildStatusGenerator
 from buildbot.reporters.generators.worker import WorkerMissingGenerator
 from buildbot.util import httpclientservice
+
+# Fix a bug in BuildStatusGeneratorMixin which misses _matches_any_tag
+try:
+    BuildSetStatusGenerator._matches_any_tag
+except AttributeError:
+    import buildbot.reporters.generators.utils
+    import buildbot.reporters.generators.build
+    buildbot.reporters.generators.utils.BuildStatusGeneratorMixin._matches_any_tag = buildbot.reporters.generators.build.BuildStatusGenerator._matches_any_tag
 
 import re
 
@@ -45,7 +56,9 @@ class MatrixStatusPush(ReporterBase):
         ):
         log.msg('CHECKCONFIG')
         
-        super().checkConfig(generators=generators)
+        if generators is None:
+            generators = [BuildSetStatusGenerator()]
+        super().checkConfig(generators=generators, **kwargs)
 
 
 
@@ -70,9 +83,12 @@ class MatrixStatusPush(ReporterBase):
         
         log.msg('RECONFIG SERVER')
         
+        if generators is None:
+            generators = [BuildSetStatusGenerator()]
+        
         self.access_token = yield self.renderSecrets(access_token)
         
-        yield super().reconfigService(generators=generators)
+        yield super().reconfigService(generators=generators, *kwargs)
 
         self.context = context or Interpolate('buildbot/%(prop:buildername)s')
         self.context_pr = context_pr or Interpolate('buildbot/pull_request/%(prop:buildername)s')
