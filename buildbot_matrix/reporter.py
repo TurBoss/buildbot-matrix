@@ -197,13 +197,13 @@ class MatrixStatusPush(ReporterBase):
         
                 if build['complete']:
                     state = {
-                            success: 'success',
-                            warnings: 'success' if self.warningAsSuccess else 'warning',
-                            failure: 'failure',
-                            skipped: 'success',
-                            exception: 'error',
-                            retry: 'pending',
-                            cancelled: 'error'
+                            SUCCESS: 'success',
+                            WARNINGS: 'success' if self.warningAsSuccess else 'warning',
+                            FAILURE: 'failure',
+                            SKIPPED: 'success',
+                            EXCEPTION: 'error',
+                            RETRY: 'pending',
+                            CANCELLED: 'error'
                         }.get(build['buildset']['results'], 'failure')
                     description = yield props.render(self.endDescription)
                 else:
