@@ -42,6 +42,7 @@ class MatrixStatusPush(ReporterBase):
             verify=None,
             **kwargs
         ):
+        log.msg('CHECKCONFIG')
         
         super().checkConfig(generators=generators)
 
@@ -65,6 +66,9 @@ class MatrixStatusPush(ReporterBase):
             verify=None,
             **kwargs
             ):
+        
+        log.msg('RECONFIG SERVER')
+        
         self.access_token = yield self.renderSecrets(access_token)
         
         yield super().reconfigService(generators=generators)
@@ -101,6 +105,7 @@ class MatrixStatusPush(ReporterBase):
             description=None,
             context=None
             ):
+        log.msg('CREATE STATUS')
 
         if description is None:
             description = "No Description"
@@ -150,6 +155,7 @@ class MatrixStatusPush(ReporterBase):
 
     @defer.inlineCallbacks
     def sendMessage(self, build):
+        log.msg('SENDM ESSAGE')
         props = Properties.fromDict(build['properties'])
         props.master = self.master
 
