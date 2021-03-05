@@ -154,8 +154,12 @@ class MatrixStatusPush(ReporterBase):
                 json=payload)
 
     @defer.inlineCallbacks
-    def sendMessage(self, build):
-        log.msg('SENDM ESSAGE')
+    def sendMessage(self, reports):
+        log.msg('SEND MESSAGE')
+        
+        log.msg(reports)
+        log.msg(dir(reports))
+        
         props = Properties.fromDict(build['properties'])
         props.master = self.master
 
