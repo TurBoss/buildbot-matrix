@@ -188,7 +188,7 @@ class MatrixStatusPush(ReporterBase):
             log.msg(report['results_text'])
 
         
-            props = Properties.fromDict(report['body']['properties'])
+            props = Properties.fromDict(report['builds']['properties'])
             props.master = self.master
     
             if report['builds']['complete']:
