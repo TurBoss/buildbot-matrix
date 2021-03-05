@@ -40,7 +40,7 @@ class MatrixStatusPush(ReporterBase):
             **kwargs
             ):
         self.access_token = yield self.renderSecrets(access_token)
-        yield http.HttpStatusPushBase.reconfigService(self, **kwargs)
+        yield ReporterBase.reconfigService(self, **kwargs)
 
         self.context = context or Interpolate('buildbot/%(prop:buildername)s')
         self.context_pr = context_pr or Interpolate('buildbot/pull_request/%(prop:buildername)s')
