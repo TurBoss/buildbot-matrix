@@ -38,6 +38,7 @@ class MatrixStatusPush(ReporterBase):
             onlyEndState=False,
             generators=None,
             debug=None,
+            verify=None,
             **kwargs
             ):
         if generators is None:
@@ -62,6 +63,7 @@ class MatrixStatusPush(ReporterBase):
             onlyEndState=False,
             generators=None,
             debug=None,
+            verify=None,
             **kwargs
             ):
         self.access_token = yield self.renderSecrets(access_token)
