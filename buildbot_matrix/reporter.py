@@ -15,7 +15,6 @@ from buildbot.process.results import SUCCESS
 from buildbot.process.results import WARNINGS
 from buildbot.reporters.base import ReporterBase
 from buildbot.reporters.generators.build import BuildStatusGenerator
-from buildbot.reporters import http
 from buildbot.util import httpclientservice
 
 import re
