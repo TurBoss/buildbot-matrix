@@ -15,6 +15,7 @@ from buildbot.process.results import SUCCESS
 from buildbot.process.results import WARNINGS
 from buildbot.reporters.base import ReporterBase
 from buildbot.reporters.generators.build import BuildStatusGenerator
+from buildbot.reporters.generators.worker import WorkerMissingGenerator
 from buildbot.util import httpclientservice
 
 import re
@@ -40,9 +41,12 @@ class MatrixStatusPush(ReporterBase):
             debug=None,
             verify=None,
             **kwargs
-            ):
-        if generators is None:
-            generators = [BuildStatusGenerator()]
+        ):
+
+        generators = [
+            BuildStatusGenerator(add_patch=True),
+            WorkerMissingGenerator(workers='all'),
+        ]
         
         super().checkConfig(generators=generators)
 
@@ -70,7 +74,10 @@ class MatrixStatusPush(ReporterBase):
         
         
         if generators is None:
-            generators = [BuildStatusGenerator()]
+            generators = [
+                BuildStatusGenerator(add_patch=True),
+                WorkerMissingGenerator(workers='all'),
+            ]
         
         yield super().reconfigService(generators=generators)
 
