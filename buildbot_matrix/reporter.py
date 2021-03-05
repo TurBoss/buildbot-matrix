@@ -40,7 +40,7 @@ class MatrixStatusPush(ReporterBase):
             **kwargs
             ):
         if generators is None:
-            generators = BuildStatusGenerator()
+            generators = [BuildStatusGenerator()]
         
         super().checkConfig(generators=generators)
 
@@ -66,7 +66,7 @@ class MatrixStatusPush(ReporterBase):
         
         
         if generators is None:
-            generators = BuildStatusGenerator()
+            generators = [BuildStatusGenerator()]
         
         yield super().reconfigService(generators=generators)
 
