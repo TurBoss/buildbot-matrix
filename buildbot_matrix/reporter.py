@@ -6,13 +6,8 @@ from twisted.python import log
 
 from buildbot.process.properties import Interpolate
 from buildbot.process.properties import Properties
-from buildbot.process.results import CANCELLED
-from buildbot.process.results import EXCEPTION
-from buildbot.process.results import FAILURE
-from buildbot.process.results import RETRY
-from buildbot.process.results import SKIPPED
-from buildbot.process.results import SUCCESS
-from buildbot.process.results import WARNINGS
+from buildbot.process.results import CANCELLED, EXCEPTION, FAILURE, RETRY, SKIPPED, SUCCESS, WARNINGS
+from buildbot.process.results import statusToString
 from buildbot.reporters import http
 from buildbot.util import httpclientservice
 from buildbot.reporters.base import ReporterBase
@@ -127,15 +122,7 @@ class MatrixStatusPush(ReporterBase):
         props.master = self.master
 
         if build['complete']:
-            state = {
-                    SUCCESS: 'success',
-                    WARNINGS: 'success' if self.warningAsSuccess else 'warning',
-                    FAILURE: 'failure',
-                    SKIPPED: 'success',
-                    EXCEPTION: 'error',
-                    RETRY: 'pending',
-                    CANCELLED: 'error'
-                }.get(build['results'], 'failure')
+            state = statusToString(build['results'])
             description = yield props.render(self.endDescription)
         else:
             state = 'pending'
